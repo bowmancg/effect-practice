@@ -16,10 +16,10 @@ const emailReducer = (state, action) => {
 
 const passwordReducer = (state, action) => {
   if (action.type === 'passwordInput') {
-    return { value: action.val, isValid: action.val.includes('@')}
+    return { value: action.val, isValid: action.val.trim().length > 6}
   }
   if (action.type === 'passwordBlur') {
-    return { value: state.value, isValid: state.value.includes('@')}
+    return { value: state.value, isValid: state.value.trim().length > 6}
   }
   return {value: '', isValid: false,}
 }
@@ -27,8 +27,8 @@ const passwordReducer = (state, action) => {
 const Login = (props) => {
   // const [enteredEmail, setEnteredEmail] = useState('');
   // const [emailIsValid, setEmailIsValid] = useState();
-  const [enteredPassword, setEnteredPassword] = useState('');
-  const [passwordIsValid, setPasswordIsValid] = useState();
+  // const [enteredPassword, setEnteredPassword] = useState('');
+  // const [passwordIsValid, setPasswordIsValid] = useState();
   const [formIsValid, setFormIsValid] = useState(false);
 
   const [emailState, dispatchEmail] = useReducer(emailReducer, {
@@ -41,22 +41,25 @@ const Login = (props) => {
     isValid: false,
   })
 
-  // useEffect(() => {
-  //   const identifier = setTimeout(() => {
-  //     setFormIsValid(
-  //       enteredEmail.includes('@') && enteredPassword.trim().length > 6
-  //     );
-  //   }, 500)
-  //   return () => {
-  //     console.log('cleanup')
-  //     clearTimeout(identifier)
-  //   }
-  // }, [enteredEmail, enteredPassword])
+  const { isValid: emailIsValid } = emailState
+  const { isValid: passwordIsValid } = passwordState
+
+  useEffect(() => {
+    const identifier = setTimeout(() => {
+      setFormIsValid(
+        emailIsValid && passwordIsValid
+      );
+    }, 500)
+    return () => {
+      console.log('cleanup')
+      clearTimeout(identifier)
+    }
+  }, [emailIsValid, passwordIsValid])
 
   const emailChangeHandler = (event) => {
     dispatchEmail({type: 'userInput', val: event.target.value})
     setFormIsValid(
-      passwordState.isValid && event.target.value.trim().length > 6
+      event.target.value.includes('@') && passwordState.isValid
     )
   };
 
